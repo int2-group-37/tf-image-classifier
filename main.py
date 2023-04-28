@@ -56,6 +56,6 @@ model.compile(
 
 model.fit(
   train_batches,
-  validation_data=validation_set,
+  validation_data=validation_batches,
   epochs=3
 )
