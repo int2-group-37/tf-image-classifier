@@ -48,6 +48,7 @@ model = tf.keras.Sequential([
   tf.keras.layers.MaxPooling2D(),
   tf.keras.layers.Flatten(),
   tf.keras.layers.Dense(128, activation='relu'),
+  tf.keras.layers.Dropout(0.22),
   tf.keras.layers.Dense(num_classes)
 ])
 
@@ -59,5 +60,5 @@ model.compile(
 model.fit(
   train_batches,
   validation_data=validation_batches,
-  epochs=3
+  epochs=6
 )
