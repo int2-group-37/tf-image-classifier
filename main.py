@@ -72,3 +72,9 @@ model.fit(
   validation_data=validation_batches,
   epochs=6
 )
+
+#These are for when we are actually ready to run the model
+"""
+model.save('Saved_Model/Current_model')
+new_model = tf.keras.models.load_model('saved_model/my_model')
+"""
