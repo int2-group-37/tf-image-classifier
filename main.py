@@ -24,7 +24,7 @@ def format_image(image, label):
     return image, label
 
 
-BATCH_SIZE = 32
+BATCH_SIZE = 64
 
 NUM_TRAINING_DATA = 1020
 
@@ -44,6 +44,7 @@ num_classes = 102
 
 
 model = tf.keras.Sequential([
+    tf.keras.layers.RandomFlip("horizontal_and_vertical"),
     tf.keras.layers.RandomRotation(0.2),
 
     tf.keras.layers.Conv2D(32, 3, activation='relu', padding="same"),
@@ -52,16 +53,16 @@ model = tf.keras.Sequential([
     tf.keras.layers.Conv2D(64, 3, activation='relu', padding="same"),
     tf.keras.layers.MaxPooling2D(),
 
-    tf.keras.layers.Conv2D(64, 3, activation='relu', padding="same"),
+    tf.keras.layers.Conv2D(96, 3, activation='relu', padding="same"),
     tf.keras.layers.MaxPooling2D(),
 
-    tf.keras.layers.Conv2D(64, 3, activation='relu', padding="same"),
+    tf.keras.layers.Conv2D(128, 3, activation='relu', padding="same"),
     tf.keras.layers.MaxPooling2D(),
 
-    tf.keras.layers.Conv2D(64, 3, activation='relu', padding="same"),
+    tf.keras.layers.Conv2D(160, 3, activation='relu', padding="same"),
     tf.keras.layers.MaxPooling2D(),
 
-    tf.keras.layers.Conv2D(64, 3, activation='relu', padding="same"),
+    tf.keras.layers.Conv2D(192, 3, activation='relu', padding="same"),
     tf.keras.layers.MaxPooling2D(),
 
     tf.keras.layers.Flatten(),
@@ -88,12 +89,9 @@ print(config["layers"][0]["config"]["batch_input_shape"])
 """
 
 # These are for when we are actually ready to run the model
-"""
-model.save('Saved_Model/Current_model')
-new_model = tf.keras.models.load_model('saved_model/my_model')
-"""
+model.save('Saved_Model/Current_Model')
+new_model = tf.keras.models.load_model('Saved_Model/Current_Model')
+
 
 # The following evaluates the model on the test data
-"""
 model.evaluate(test_batches)
-"""
