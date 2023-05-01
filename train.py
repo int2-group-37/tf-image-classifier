@@ -79,7 +79,7 @@ model.compile(
 model.fit(
     train_batches,
     validation_data=validation_batches,
-    epochs=100
+    epochs=150
 )
 
 # This gets the input data's size if need (GET RID OF BEFORE SENDING IN)
@@ -90,8 +90,3 @@ print(config["layers"][0]["config"]["batch_input_shape"])
 
 # These are for when we are actually ready to run the model
 model.save('Saved_Model/Current_Model')
-new_model = tf.keras.models.load_model('Saved_Model/Current_Model')
-
-
-# The following evaluates the model on the test data
-model.evaluate(test_batches)
