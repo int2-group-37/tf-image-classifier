@@ -37,6 +37,7 @@ test_batches = test_set.cache().map(format_image).batch(BATCH_SIZE).prefetch(1)
 
 num_classes = 102
 
+
 model = tf.keras.Sequential([
   tf.keras.layers.Conv2D(32, 3, activation='relu',padding="same"),
   tf.keras.layers.MaxPooling2D(),
@@ -44,21 +45,21 @@ model = tf.keras.Sequential([
   tf.keras.layers.Conv2D(64, 3, activation='relu',padding="same"),
   tf.keras.layers.MaxPooling2D(),
   
-  tf.keras.layers.Conv2D(96, 3, activation='relu',padding="same"),
+  tf.keras.layers.Conv2D(64, 3, activation='relu',padding="same"),
   tf.keras.layers.MaxPooling2D(),
   
-  tf.keras.layers.Conv2D(96, 3, activation='relu',padding="same"),
+  tf.keras.layers.Conv2D(64, 3, activation='relu',padding="same"),
   tf.keras.layers.MaxPooling2D(),
   
-  tf.keras.layers.Conv2D(96, 3, activation='relu',padding="same"),
+  tf.keras.layers.Conv2D(64, 3, activation='relu',padding="same"),
   tf.keras.layers.MaxPooling2D(),
   
-  tf.keras.layers.Conv2D(96, 3, activation='relu',padding="same"),
+  tf.keras.layers.Conv2D(64, 3, activation='relu',padding="same"),
   tf.keras.layers.MaxPooling2D(),
   
   tf.keras.layers.Flatten(),
   tf.keras.layers.Dense(128, activation='relu'),
-  tf.keras.layers.Dropout(0.22),
+  tf.keras.layers.Dropout(0.3),
   tf.keras.layers.Dense(num_classes)
 ])
 
@@ -73,8 +74,19 @@ model.fit(
   epochs=6
 )
 
+#This gets the input data's size if need (GET RID OF BEFORE SENDING IN)
+"""
+config = model.get_config()
+print(config["layers"][0]["config"]["batch_input_shape"])
+"""
+
 #These are for when we are actually ready to run the model
 """
 model.save('Saved_Model/Current_model')
 new_model = tf.keras.models.load_model('saved_model/my_model')
+"""
+
+#The following evaluates the model on the test data
+"""
+model.evaluate(test_batches)
 """
