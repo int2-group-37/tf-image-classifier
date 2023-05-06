@@ -25,7 +25,7 @@ def format_image(image, label):
     return image, label
 
 
-BATCH_SIZE = 64
+BATCH_SIZE = 32
 
 NUM_TRAINING_DATA = 1020
 

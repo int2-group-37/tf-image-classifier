@@ -69,8 +69,8 @@ loss2 = 900000
 
 model = tf.keras.Sequential([
     tf.keras.layers.RandomFlip("horizontal_and_vertical"),
-    tf.keras.layers.RandomContrast(factor=(0.1,0.2),seed=(1,2)),
-    tf.keras.layers.RandomZoom(height_factor=(0, -0.3),width_factor=(0,-0.3),fill_mode="wrap"),
+    tf.keras.layers.RandomContrast(factor=(0.1,0.5),seed=(1,2)),
+    tf.keras.layers.RandomZoom(height_factor=(0, -0.65),width_factor=(0,-0.65),fill_mode="wrap"),
     tf.keras.layers.RandomRotation(0.5),
 
     tf.keras.layers.Conv2D(64, 3, activation='relu', padding="same",input_shape = (150,150,3)),
@@ -83,7 +83,13 @@ model = tf.keras.Sequential([
     tf.keras.layers.MaxPooling2D((2,2),padding="same"),
     tf.keras.layers.Dropout(0.1),
 
-
+    tf.keras.layers.Conv2D(256, 3, activation='relu', padding="same"),
+    tf.keras.layers.Conv2D(256, 3, activation='relu', padding="same"),
+    tf.keras.layers.Conv2D(256, 3, activation='relu', padding="same"),
+    tf.keras.layers.MaxPooling2D((2,2),padding="same"),
+    tf.keras.layers.Dropout(0.1),
+    
+    tf.keras.layers.Conv2D(256, 3, activation='relu', padding="same"),
     tf.keras.layers.Conv2D(256, 3, activation='relu', padding="same"),
     tf.keras.layers.Conv2D(256, 3, activation='relu', padding="same"),
     tf.keras.layers.MaxPooling2D((2,2),padding="same"),
@@ -92,7 +98,7 @@ model = tf.keras.Sequential([
     tf.keras.layers.Flatten(),
     tf.keras.layers.Dense(256, activation='relu',kernel_regularizer=keras.regularizers.l2(0.001)),
     tf.keras.layers.Dropout(0.1),
-    tf.keras.layers.Dense(num_classes,activation='softmax',kernel_regularizer=keras.regularizers.l2(0.001))
+    tf.keras.layers.Dense(num_classes,activation='relu',kernel_regularizer=keras.regularizers.l2(0.001))
 ])
 
 reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor="val_loss", factor=0.8,patience=10,min_lr=0.00001)
