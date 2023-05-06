@@ -1,4 +1,3 @@
-
 import tensorflow as tf
 from tensorflow import keras
 import tensorflow_datasets as tfds
@@ -22,6 +21,7 @@ IMAGE_RES = 224
 
 def format_image(image, label):
     image = tf.image.resize(image, (IMAGE_RES, IMAGE_RES))/255.0
+    image = tf.image.rgb_to_grayscale(image)
     return image, label
 
 
@@ -43,34 +43,7 @@ test_batches = test_set.cache().map(format_image).batch(BATCH_SIZE).prefetch(1)
 
 num_classes = 102
 
-
-model = tf.keras.Sequential([
-    tf.keras.layers.RandomFlip("horizontal_and_vertical"),
-    tf.keras.layers.RandomRotation(0.2),
-
-    tf.keras.layers.Conv2D(32, 3, activation='relu', padding="same"),
-    tf.keras.layers.MaxPooling2D(),
-
-    tf.keras.layers.Conv2D(64, 3, activation='relu', padding="same"),
-    tf.keras.layers.MaxPooling2D(),
-
-    tf.keras.layers.Conv2D(96, 3, activation='relu', padding="same"),
-    tf.keras.layers.MaxPooling2D(),
-
-    tf.keras.layers.Conv2D(128, 3, activation='relu', padding="same"),
-    tf.keras.layers.MaxPooling2D(),
-
-    tf.keras.layers.Conv2D(160, 3, activation='relu', padding="same"),
-    tf.keras.layers.MaxPooling2D(),
-
-    tf.keras.layers.Conv2D(192, 3, activation='relu', padding="same"),
-    tf.keras.layers.MaxPooling2D(),
-
-    tf.keras.layers.Flatten(),
-    tf.keras.layers.Dense(128, activation='relu'),
-    tf.keras.layers.Dropout(0.3),
-    tf.keras.layers.Dense(num_classes)
-])
+model = tf.keras.models.load_model('Saved_Model/Current_Model')
 
 model.compile(
     optimizer='adam',
@@ -82,12 +55,3 @@ model.fit(
     validation_data=validation_batches,
     epochs=150
 )
-
-# This gets the input data's size if need (GET RID OF BEFORE SENDING IN)
-"""
-config = model.get_config()
-print(config["layers"][0]["config"]["batch_input_shape"])
-"""
-
-# These are for when we are actually ready to run the model
-model.save('Saved_Model/Current_Model')
