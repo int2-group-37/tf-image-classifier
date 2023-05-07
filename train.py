@@ -24,7 +24,7 @@ def format_image(image, label):
     return image, label
 
 
-BATCH_SIZE = 64
+BATCH_SIZE = 32
 
 NUM_TRAINING_DATA = 1020
 
@@ -43,33 +43,36 @@ test_batches = test_set.cache().map(format_image).batch(BATCH_SIZE).prefetch(1)
 num_classes = 102
 
 
-model = tf.keras.Sequential([
-    tf.keras.layers.RandomFlip("horizontal_and_vertical"),
-    tf.keras.layers.RandomRotation(0.2),
+model = tf.keras.models.Sequential([
 
-    tf.keras.layers.Conv2D(32, 3, activation='relu', padding="same"),
-    tf.keras.layers.MaxPooling2D(),
+  tf.keras.layers.RandomFlip('vertical', input_shape = (224, 224, 3)),
+  tf.keras.layers.RandomFlip('horizontal'),
+  tf.keras.layers.RandomRotation(factor = 0.2, fill_mode = 'nearest'),
+  tf.keras.layers.RandomZoom(0.3),
+  tf.keras.layers.RandomContrast(0.3),
 
-    tf.keras.layers.Conv2D(64, 3, activation='relu', padding="same"),
-    tf.keras.layers.MaxPooling2D(),
+  tf.keras.layers.GaussianNoise(stddev=0.001),
+  tf.keras.layers.Conv2D(filters = 32, kernel_size = (3, 3),strides=(1,1), activation = 'relu'),
+  tf.keras.layers.MaxPool2D(),
 
-    tf.keras.layers.Conv2D(96, 3, activation='relu', padding="same"),
-    tf.keras.layers.MaxPooling2D(),
+  tf.keras.layers.Conv2D(filters = 48, kernel_size = (3, 3),strides=(1,1), activation = 'relu'),
+  tf.keras.layers.MaxPool2D(),
 
-    tf.keras.layers.Conv2D(128, 3, activation='relu', padding="same"),
-    tf.keras.layers.MaxPooling2D(),
+  tf.keras.layers.Conv2D(filters = 48, kernel_size = (3, 3),strides=(1,1), activation = 'relu'), 
+  tf.keras.layers.MaxPool2D(),
 
-    tf.keras.layers.Conv2D(160, 3, activation='relu', padding="same"),
-    tf.keras.layers.MaxPooling2D(),
-
-    tf.keras.layers.Conv2D(192, 3, activation='relu', padding="same"),
-    tf.keras.layers.MaxPooling2D(),
-
-    tf.keras.layers.Flatten(),
-    tf.keras.layers.Dense(128, activation='relu'),
-    tf.keras.layers.Dropout(0.3),
-    tf.keras.layers.Dense(num_classes)
+  tf.keras.layers.Flatten(),
+  #tf.keras.layers.Dense(1024, activation = 'relu'),
+  tf.keras.layers.Dropout(0.3),
+  tf.keras.layers.Dense(256, activation = 'relu'),
+  tf.keras.layers.Dropout(0.3),
+  tf.keras.layers.Dense(256, activation = 'relu'),
+  tf.keras.layers.Dropout(0.3),
+  tf.keras.layers.Dense(102, activation = 'softmax')
 ])
+
+reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.8,
+                              patience=10, min_lr=0.00001)
 
 model.compile(
     optimizer='adam',
@@ -79,7 +82,8 @@ model.compile(
 model.fit(
     train_batches,
     validation_data=validation_batches,
-    epochs=150
+    epochs=150,
+    callbacks=[reduce_lr]
 )
 
 # This gets the input data's size if need (GET RID OF BEFORE SENDING IN)
