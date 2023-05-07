@@ -37,27 +37,23 @@ model = tf.keras.models.Sequential([
   tf.keras.layers.RandomFlip('horizontal'),
   tf.keras.layers.RandomRotation(factor = 0.2, fill_mode = 'nearest', seed = 1),
   tf.keras.layers.RandomContrast((0,0.3), seed=1),
-  tf.keras.layers.RandomBrightness(factor=(0,0.3), value_range=(0,1), seed=1),
 
   tf.keras.layers.GaussianNoise(stddev=0.001),
   tf.keras.layers.Conv2D(filters = 32, kernel_size = (3, 3),strides=(1,1), activation = 'relu'),
   tf.keras.layers.MaxPool2D(pool_size=(3,3)),
 
-  tf.keras.layers.Conv2D(filters = 48, kernel_size = (3, 3),strides=(1,1), activation = 'relu'),
-  tf.keras.layers.MaxPool2D(pool_size=(3,3)),
-
-  tf.keras.layers.Conv2D(filters = 48, kernel_size = (3, 3),strides=(1,1), activation = 'relu'),
-  tf.keras.layers.MaxPool2D(pool_size=(3,3)),
+  tf.keras.layers.Conv2D(filters = 64, kernel_size = (3, 3),strides=(1,1), activation = 'relu'),
+  tf.keras.layers.MaxPool2D(pool_size=(2,2)),
 
   tf.keras.layers.Flatten(),
-  tf.keras.layers.Dropout(0.3),
+  tf.keras.layers.Dropout(0.45),
   tf.keras.layers.Dense(256, activation = 'relu'),
   tf.keras.layers.Dropout(0.45),
   tf.keras.layers.Dense(102, activation = 'softmax')
 ])
 
-reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.8,
-                              patience=10, min_lr=0.00001)
+reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.95,
+                              patience=20, min_lr=0.00001)
 
 mcp_save = keras.callbacks.ModelCheckpoint('Saved_Model/Current_Model_Best', save_best_only=True, monitor='val_loss', mode='min')
 

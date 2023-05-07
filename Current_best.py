@@ -1,11 +1,8 @@
-from platform import platform
 import tensorflow as tf
 from tensorflow import keras
 import tensorflow_datasets as tfds
 import os
 import numpy as np
-from keras.preprocessing.image import ImageDataGenerator
-import matplotlib.pyplot as plt
 
 dataset, dataset_info = tfds.load('oxford_flowers102', data_dir=(
     os.getcwd() + '/dataset'), with_info=True, as_supervised=True)
