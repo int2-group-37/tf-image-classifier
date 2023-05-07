@@ -33,7 +33,7 @@ model = tf.keras.models.Sequential([
   tf.keras.layers.RandomFlip('horizontal'),
   tf.keras.layers.RandomRotation(factor = 0.2, fill_mode = 'nearest'),
   tf.keras.layers.RandomZoom(0.3),
-  tf.keras.layers.RandomContrast(0.3),
+  tf.keras.layers.RandomContrast(0.5),
 
   tf.keras.layers.GaussianNoise(stddev=0.001),
 
