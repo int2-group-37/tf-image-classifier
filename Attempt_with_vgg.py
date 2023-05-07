@@ -11,42 +11,12 @@ test_set, training_set, validation_set = dataset['test'], dataset['train'], data
 
 print(len(training_set))
 
-# normalization_layer = keras.layers.Rescaling(1./255)
-
-# normalized_dataset = training_set.map(lambda x, y: (normalization_layer(x),y))
-# images, labels = next(iter(normalized_dataset))
-
-IMAGE_RES = 150
+IMAGE_RES = 224
 
 
 def format_image(image, label):
     image = tf.image.resize(image, (IMAGE_RES, IMAGE_RES))/255.0
     return image, label
-"""
-def greyscale(image,label):
-    image = tf.image.rgb_to_grayscale(image)
-    return image, label
-
-def random_change_brightness(image, label):
-    image = tf.image.stateless_random_brightness(image, 0.3, seed=(1,2))
-    return image, label
-
-def random_change_contrast(image, label):
-    seed = (1, 2)
-    image = tf.image.stateless_random_brightness(image, 0.2, seed)
-    return image, label
-
-def random_change_hue(image, label):
-    seed = (1, 2)
-    image = tf.image.stateless_random_hue(image, 0.2, seed)
-    return image, label
-
-
-trainset2 = training_set.map(random_change_brightness)
-trainset3 = training_set.map(random_change_contrast)
-trainset4 = training_set.map(random_change_hue)
-training_set = training_set.concatenate(trainset2).concatenate(trainset3).concatenate(trainset4)
-"""
 
 BATCH_SIZE = 128
 print(training_set.cardinality().numpy())
@@ -59,52 +29,41 @@ validation_batches = validation_set.cache().map(format_image).batch(BATCH_SIZE).
 test_batches = test_set.cache().map(format_image).batch(BATCH_SIZE).prefetch(1)
 
 
-
-# autotune = tf.data.AUTOTUNE
-# Snormalized_dataset = normalized_dataset.cache().prefetch(buffer_size=autotune)
-
 num_classes = 102
-loss2 = 900000
-
 
 model = tf.keras.Sequential([
+    # data augmentation layers
     tf.keras.layers.RandomFlip("horizontal_and_vertical"),
-    tf.keras.layers.RandomContrast(factor=(0.1,0.5),seed=(1,2)),
-    tf.keras.layers.RandomZoom(height_factor=(0, -0.65),width_factor=(0,-0.65),fill_mode="wrap"),
-    tf.keras.layers.RandomRotation(0.5),
+    tf.keras.layers.RandomContrast(factor=(0.05,0.25),seed=(1,2)),
+    tf.keras.layers.RandomZoom(height_factor=(0, -0.15),width_factor=(0,-0.15),fill_mode="wrap"),
+    tf.keras.layers.RandomRotation(0.2),
 
-    tf.keras.layers.Conv2D(64, 3, activation='relu', padding="same",input_shape = (150,150,3)),
-    tf.keras.layers.Conv2D(64, 3, activation='relu', padding="same"),
-    tf.keras.layers.MaxPooling2D((2,2),padding="same"),
+    tf.keras.layers.Conv2D(32, (3,3), activation='relu', padding="same",input_shape=(224,224,3)),
+    tf.keras.layers.Conv2D(64, (3,3), activation='relu', padding="same"),
+    tf.keras.layers.MaxPooling2D(pool_size=(2, 2),strides= 2,padding='valid'),
     tf.keras.layers.Dropout(0.05),
 
-    tf.keras.layers.Conv2D(128, 3, activation='relu', padding="same"),
-    tf.keras.layers.Conv2D(128, 3, activation='relu', padding="same"),
-    tf.keras.layers.MaxPooling2D((2,2),padding="same"),
-    tf.keras.layers.Dropout(0.1),
+    tf.keras.layers.Conv2D(96, (3,3), activation='relu', padding="same"),
+    tf.keras.layers.Conv2D(128, (3,3), activation='relu', padding="same"),
+    tf.keras.layers.MaxPooling2D(pool_size=(2, 2),strides= 2,padding='valid'),
+    tf.keras.layers.Dropout(0.05),
 
-    tf.keras.layers.Conv2D(256, 3, activation='relu', padding="same"),
-    tf.keras.layers.Conv2D(256, 3, activation='relu', padding="same"),
-    tf.keras.layers.Conv2D(256, 3, activation='relu', padding="same"),
-    tf.keras.layers.MaxPooling2D((2,2),padding="same"),
-    tf.keras.layers.Dropout(0.1),
-    
-    tf.keras.layers.Conv2D(256, 3, activation='relu', padding="same"),
-    tf.keras.layers.Conv2D(256, 3, activation='relu', padding="same"),
-    tf.keras.layers.Conv2D(256, 3, activation='relu', padding="same"),
-    tf.keras.layers.MaxPooling2D((2,2),padding="same"),
-    tf.keras.layers.Dropout(0.1),
+    tf.keras.layers.Conv2D(160, (3,3), activation='relu', padding="same"),
+    tf.keras.layers.Conv2D(192, (3,3), activation='relu', padding="same"),
+    tf.keras.layers.MaxPooling2D(pool_size=(2, 2),strides= 2,padding='valid'),
+    tf.keras.layers.Dropout(0.05),
 
     tf.keras.layers.Flatten(),
-    tf.keras.layers.Dense(256, activation='relu',kernel_regularizer=keras.regularizers.l2(0.001)),
-    tf.keras.layers.Dropout(0.1),
-    tf.keras.layers.Dense(num_classes,activation='relu',kernel_regularizer=keras.regularizers.l2(0.001))
+    tf.keras.layers.Dense(512, activation='relu',kernel_initializer='random_normal',bias_initializer='zeros'),
+    tf.keras.layers.Dropout(0.3),
+    tf.keras.layers.Dense(num_classes, activation='softmax',kernel_initializer='random_normal',bias_initializer='zeros')
 ])
 
-reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor="val_loss", factor=0.8,patience=10,min_lr=0.00001)
+
+reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor="val_loss", factor=0.8,patience=50,min_lr=0.00001)
 
 model.compile(
-    optimizer='adam',
+    optimizer='sgd',
     loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
     metrics=['accuracy'])
 
@@ -116,6 +75,8 @@ model.fit(
     callbacks=[reduce_lr]
     #ADD BACK SAVE FUNCTION
 )
+
+model.summary()
 
 
 # This gets the input data's size if need (GET RID OF BEFORE SENDING IN)
