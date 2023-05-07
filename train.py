@@ -30,7 +30,7 @@ num_classes = 102
 
 model = tf.keras.models.Sequential([
 
-  tf.keras.layers.RandomFlip('vertical', input_shape = (224, 224, 3)),
+  #tf.keras.layers.RandomFlip('vertical', input_shape = (224, 224, 3)),
   tf.keras.layers.RandomFlip('horizontal'),
   tf.keras.layers.RandomRotation(factor = 0.2, fill_mode = 'nearest'),
   tf.keras.layers.RandomZoom(0.3),
