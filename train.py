@@ -1,10 +1,8 @@
-from platform import platform
 import tensorflow as tf
 from tensorflow import keras
 import tensorflow_datasets as tfds
 import os
 import numpy as np
-from keras.preprocessing.image import ImageDataGenerator
 
 dataset, dataset_info = tfds.load('oxford_flowers102', data_dir=(
     os.getcwd() + '/dataset'), with_info=True, as_supervised=True)
@@ -28,43 +26,52 @@ test_batches = test_set.cache().map(format_image).batch(BATCH_SIZE).prefetch(1)
 
 num_classes = 102
 
-model = tf.keras.models.Sequential([
+tf.random.set_seed(22)
 
-  #tf.keras.layers.RandomFlip('vertical', input_shape = (224, 224, 3)),
-  tf.keras.layers.RandomFlip('horizontal'),
-  tf.keras.layers.RandomRotation(factor = 0.2, fill_mode = 'nearest'),
-  tf.keras.layers.RandomZoom(0.3),
-  tf.keras.layers.RandomContrast(0.3),
+model = keras.models.Sequential([
 
-  tf.keras.layers.GaussianNoise(stddev=0.001),
-  tf.keras.layers.Conv2D(filters = 32, kernel_size = (3, 3),strides=(1,1), activation = 'relu'),
-  tf.keras.layers.MaxPool2D(),
+  keras.layers.RandomFlip('horizontal'),
+  keras.layers.RandomRotation(factor = 0.2, fill_mode = 'nearest'),
+  keras.layers.RandomZoom(0.5),
+  keras.layers.RandomContrast(0.7),
 
-  tf.keras.layers.Conv2D(filters = 64, kernel_size = (3, 3),strides=(1,1), activation = 'relu'),
-  tf.keras.layers.MaxPool2D(pool_size=(3,3)),
+  keras.layers.GaussianNoise(stddev=0.001),
 
-  tf.keras.layers.Flatten(),
-  #tf.keras.layers.Dense(1024, activation = 'relu'),
-  tf.keras.layers.Dropout(0.45),
-  tf.keras.layers.Dense(256, activation = 'relu'),
-  tf.keras.layers.Dropout(0.45),
-  tf.keras.layers.Dense(102, activation = 'softmax')
+  keras.layers.Conv2D(filters = 32, kernel_size = (3, 3),strides=(1,1), activation = 'relu'),
+  keras.layers.MaxPool2D(),
+
+  keras.layers.Conv2D(filters = 32, kernel_size = (3, 3),strides=(1,1), activation = 'relu'),
+  keras.layers.MaxPool2D(),
+
+  keras.layers.Conv2D(filters = 64, kernel_size = (3, 3),strides=(1,1), activation = 'relu'),
+  keras.layers.MaxPool2D(pool_size=(3,3)),
+
+  keras.layers.Conv2D(filters = 64, kernel_size = (3, 3),strides=(1,1), activation = 'relu'),
+  keras.layers.MaxPool2D(pool_size=(3,3)),
+
+  keras.layers.Flatten(),
+  keras.layers.Dropout(0.45),
+  keras.layers.Dense(256, activation = 'relu'),
+  keras.layers.Dropout(0.5),
+  keras.layers.Dense(102, activation = 'softmax')
 ])
 
-# UPDATED: Factor: 0.8 -> 0.2, patience: 10 -> 20
-reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.95,
+reduce_lr = keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.95,
                               patience=20, min_lr=0.00001)
+
+mcp_save = keras.callbacks.ModelCheckpoint('Saved_Model/Current_Model_Best', save_best_only=True, monitor='val_accuracy', mode='max')
 
 model.compile(
   optimizer='adam',
-  loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False),
+  loss=keras.losses.SparseCategoricalCrossentropy(from_logits=False),
   metrics=['accuracy'])
 
 history = model.fit(
     train_batches,
     validation_data=validation_batches,
-    epochs=200,
-    callbacks=[reduce_lr]
+    epochs=400,
+    callbacks=[reduce_lr,mcp_save]
     )
 
+model.save('Saved_Model/End_Model')
 model.evaluate(test_batches)
