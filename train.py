@@ -59,7 +59,7 @@ model = keras.models.Sequential([
 reduce_lr = keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.95,
                               patience=20, min_lr=0.00001)
 
-mcp_save = keras.callbacks.ModelCheckpoint('Saved_Model/Current_Model_Best', save_best_only=True, monitor='val_accuracy', mode='max')
+mcp_save = keras.callbacks.ModelCheckpoint('Saved_Model/Checkpoint_Model', save_best_only=True, monitor='val_accuracy', mode='max')
 
 model.compile(
   optimizer='adam',
@@ -69,9 +69,9 @@ model.compile(
 history = model.fit(
     train_batches,
     validation_data=validation_batches,
-    epochs=400,
+    epochs=1000,
     callbacks=[reduce_lr,mcp_save]
     )
 
-model.save('Saved_Model/End_Model')
+model.save('Saved_Model/Final_Model')
 model.evaluate(test_batches)
