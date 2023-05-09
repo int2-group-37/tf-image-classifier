@@ -1,4 +1,4 @@
-# tf-image-classifier
+## tf-image-classifier
 
 ## Image Classification with Neural Networks
 ### Group 37: Adam John Brown, Ben Young, Josh Thomas, Matt Rohatynskyj, Thomas McCarthy
