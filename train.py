@@ -30,11 +30,13 @@ tf.random.set_seed(22)
 
 model = keras.models.Sequential([
 
+  # Applies Data Augmentation Layers
+  # Augmentation layers are ONLY applied during model.compile and model.fit, NOT model.evaluate
+  # Reference: https://www.tensorflow.org/tutorials/images/data_augmentation#:~:text=Note%3A%20Data%20augmentation%20is%20inactive%20at%20test%20time%20so%20input%20images%20will%20only%20be%20augmented%20during%20calls%20to%20Model.fit%20(not%20Model.evaluate%20or%20Model.predict).
   keras.layers.RandomFlip('horizontal'),
   keras.layers.RandomRotation(factor = 0.2, fill_mode = 'nearest'),
   keras.layers.RandomZoom(0.5),
   keras.layers.RandomContrast(0.7),
-
   keras.layers.GaussianNoise(stddev=0.001),
 
   keras.layers.Conv2D(filters = 32, kernel_size = (3, 3),strides=(1,1), activation = 'relu'),
@@ -69,7 +71,7 @@ model.compile(
 history = model.fit(
     train_batches,
     validation_data=validation_batches,
-    epochs=1000,
+    epochs=27000,
     callbacks=[reduce_lr,mcp_save]
     )
 
